@@ -3,7 +3,7 @@ package ast
 type Visitor interface {
 	VisitBinaryExpr(expr *BinaryExpr) any
 	VisitLiteralExpr(expr *LiteralExpr) any
-	// VisitGroupingExpr(expr *GroupingExpr) any
+	VisitGroupingExpr(expr *GroupingExpr) any
 }
 
 type Expr interface {
@@ -63,10 +63,16 @@ func NewLiteralExpr(value any) *LiteralExpr {
 }
 
 // GroupingExpr
-// type GroupingExpr struct {
-// 	expr Expr
-// }
+type GroupingExpr struct {
+	expr Expr
+}
 
-// func (e *GroupingExpr) Accept(visitor Visitor) any {
-// 	return visitor.VisitGroupingExpr(e)
-// }
+func (e *GroupingExpr) Accept(visitor Visitor) any {
+	return visitor.VisitGroupingExpr(e)
+}
+
+func NewGroupingExpr(expr Expr) *GroupingExpr {
+	return &GroupingExpr{
+		expr: expr,
+	}
+}

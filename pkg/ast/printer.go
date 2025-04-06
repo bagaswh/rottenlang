@@ -21,3 +21,7 @@ func (p *ASTPrinter) VisitBinaryExpr(expr *BinaryExpr) any {
 func (p *ASTPrinter) VisitLiteralExpr(expr *LiteralExpr) any {
 	return fmt.Sprintf("%v", expr.Value())
 }
+
+func (p *ASTPrinter) VisitGroupingExpr(expr *GroupingExpr) any {
+	return fmt.Sprintf("(%v)", expr.expr.Accept(p).(string))
+}

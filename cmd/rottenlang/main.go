@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/bagaswh/rottenlang/pkg/rottenlang"
+	"github.com/bagaswh/rottenlang/pkg/scanner"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -32,7 +33,7 @@ var rootCmd = &cobra.Command{
 			fmt.Printf("Error: Failed reading file '%s': %v", filename, err.Error())
 			os.Exit(1)
 		}
-		rottenlang := rottenlang.NewRottenlang(string(source), &rottenlang.StderrErrorReporter{})
+		rottenlang := rottenlang.NewRottenlang(string(source), &scanner.StderrErrorReporter{})
 		rottenlang.Scan()
 	},
 }

@@ -3,16 +3,18 @@ package rottenlang
 import (
 	"fmt"
 	"strings"
+
+	"github.com/bagaswh/rottenlang/pkg/scanner"
 )
 
 type Rottenlang struct {
-	Scanner       *Scanner
-	ErrorReporter ErrorReporter
+	Scanner       *scanner.Scanner
+	ErrorReporter scanner.ErrorReporter
 }
 
-func NewRottenlang(source string, errorReporter ErrorReporter) *Rottenlang {
+func NewRottenlang(source string, errorReporter scanner.ErrorReporter) *Rottenlang {
 	r := strings.NewReader(source)
-	scanner := NewScanner(r, 0)
+	scanner := scanner.NewScanner(r, 0)
 	return &Rottenlang{
 		Scanner:       scanner,
 		ErrorReporter: errorReporter,
@@ -24,7 +26,7 @@ func (d *Rottenlang) Run(line string) {}
 func (d *Rottenlang) Scan() {
 	_, err := d.Scanner.ScanTokens()
 	if err != nil {
-		if err == ErrScanner {
+		if err == scanner.ErrScanner {
 			for _, lineErrs := range d.Scanner.ScannerErrors() {
 				firstErr := lineErrs[0]
 				fmt.Println(firstErr.Error())

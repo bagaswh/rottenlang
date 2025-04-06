@@ -1,8 +1,10 @@
-package rottenlang
+package scanner
 
 import (
 	"io"
 	"strconv"
+
+	"github.com/bagaswh/rottenlang/pkg/ast"
 )
 
 func NewScanner(r io.Reader, readBuffer int) *Scanner {
@@ -28,7 +30,7 @@ type Scanner struct {
 	// col is the buffer index of the first character in a line
 	col int
 
-	tokens []*Token
+	tokens []*ast.Token
 
 	scannerErrors map[int][]*GenericScanError
 }
@@ -64,64 +66,64 @@ func (s *Scanner) advance() string {
 	return string(c)
 }
 
-func (s *Scanner) addToken(tokenType TokenType, literal any) {
+func (s *Scanner) addToken(tokenType ast.TokenType, literal any) {
 	tokenStr := string(s.buf[s.start:s.current])
 	// TODO: remove hardcode and make it more elegant
 	// if tokenType == TokenString {
 	// tokenStr += "\""
 	// }
-	s.tokens = append(s.tokens, NewToken(tokenType, &tokenStr, literal, s.line, s.linecol()))
+	s.tokens = append(s.tokens, ast.NewToken(tokenType, &tokenStr, literal, s.line, s.linecol()))
 }
 
 func (s *Scanner) scanToken() error {
 	c := s.advance()
 	switch c {
 	case "(":
-		s.addToken(TokenLeftParen, nil)
+		s.addToken(ast.TokenLeftParen, nil)
 	case ")":
-		s.addToken(TokenRightParen, nil)
+		s.addToken(ast.TokenRightParen, nil)
 	case "{":
-		s.addToken(TokenLeftBrace, nil)
+		s.addToken(ast.TokenLeftBrace, nil)
 	case "}":
-		s.addToken(TokenRightBrace, nil)
+		s.addToken(ast.TokenRightBrace, nil)
 	case "[":
-		s.addToken(TokenLeftBracket, nil)
+		s.addToken(ast.TokenLeftBracket, nil)
 	case "]":
-		s.addToken(TokenRightBracket, nil)
+		s.addToken(ast.TokenRightBracket, nil)
 	case ",":
-		s.addToken(TokenComma, nil)
+		s.addToken(ast.TokenComma, nil)
 	case ".":
-		s.addToken(TokenDot, nil)
+		s.addToken(ast.TokenDot, nil)
 	case "-":
-		s.addToken(TokenMinus, nil)
+		s.addToken(ast.TokenMinus, nil)
 	case "+":
-		s.addToken(TokenPlus, nil)
+		s.addToken(ast.TokenPlus, nil)
 	case ";":
-		s.addToken(TokenSemicolon, nil)
+		s.addToken(ast.TokenSemicolon, nil)
 	case "*":
-		s.addToken(TokenStar, nil)
+		s.addToken(ast.TokenStar, nil)
 	case "!":
-		token := TokenBang
+		token := ast.TokenBang
 		if s.match("=") {
-			token = TokenBangEqual
+			token = ast.TokenBangEqual
 		}
 		s.addToken(token, nil)
 	case "=":
-		token := TokenEqual
+		token := ast.TokenEqual
 		if s.match("=") {
-			token = TokenEqualEqual
+			token = ast.TokenEqualEqual
 		}
 		s.addToken(token, nil)
 	case "<":
-		token := TokenLess
+		token := ast.TokenLess
 		if s.match("=") {
-			token = TokenLessEqual
+			token = ast.TokenLessEqual
 		}
 		s.addToken(token, nil)
 	case ">":
-		token := TokenGreater
+		token := ast.TokenGreater
 		if s.match("=") {
-			token = TokenGreaterEqual
+			token = ast.TokenGreaterEqual
 		}
 		s.addToken(token, nil)
 	case "/":
@@ -130,7 +132,7 @@ func (s *Scanner) scanToken() error {
 		} else if s.match("*") {
 			s.cStyleComment()
 		} else {
-			s.addToken(TokenSlash, nil)
+			s.addToken(ast.TokenSlash, nil)
 		}
 	case "\"":
 		s.string()
@@ -171,7 +173,7 @@ func (s *Scanner) comment() {
 		s.advance()
 	}
 
-	s.addToken(TokenComment, string(s.buf[s.start:s.current]))
+	s.addToken(ast.TokenComment, string(s.buf[s.start:s.current]))
 }
 
 func (s *Scanner) cStyleComment() {
@@ -197,7 +199,7 @@ func (s *Scanner) cStyleComment() {
 		}
 	}
 
-	s.addToken(TokenCStyleComment, string(s.buf[s.start:s.current]))
+	s.addToken(ast.TokenCStyleComment, string(s.buf[s.start:s.current]))
 
 }
 
@@ -236,7 +238,7 @@ func (s *Scanner) string() {
 	// the closing ""
 	s.advance()
 
-	s.addToken(TokenString, string(strValue))
+	s.addToken(ast.TokenString, string(strValue))
 }
 
 func (s *Scanner) isDigit(ch string) bool {
@@ -265,7 +267,7 @@ func (s *Scanner) number() {
 		s.scanError(invalidNumberLiteralError(num))
 	}
 
-	s.addToken(TokenNumber, numVal)
+	s.addToken(ast.TokenNumber, numVal)
 }
 
 func (s *Scanner) peek() string {
@@ -293,14 +295,14 @@ func (s *Scanner) match(ch string) bool {
 	return true
 }
 
-func (s *Scanner) ScanTokens() ([]*Token, error) {
-	tokens := make([]*Token, 0)
+func (s *Scanner) ScanTokens() ([]*ast.Token, error) {
+	tokens := make([]*ast.Token, 0)
 	for !s.isAtEnd() {
 		s.start = s.current
 		s.scanToken()
 	}
 
-	tokens = append(tokens, NewToken(TokenEOF, strPtr(""), nil, s.line, s.linecol()))
+	tokens = append(tokens, ast.NewToken(ast.TokenEOF, strPtr(""), nil, s.line, s.linecol()))
 
 	if len(s.scannerErrors) > 0 {
 		return nil, ErrScanner
@@ -309,7 +311,7 @@ func (s *Scanner) ScanTokens() ([]*Token, error) {
 	return tokens, nil
 }
 
-func (s *Scanner) Tokens() []*Token {
+func (s *Scanner) Tokens() []*ast.Token {
 	return s.tokens
 }
 

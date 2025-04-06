@@ -1,4 +1,4 @@
-package rottenlang
+package scanner
 
 import (
 	"errors"

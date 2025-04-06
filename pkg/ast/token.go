@@ -1,4 +1,4 @@
-package rottenlang
+package ast
 
 type TokenType byte
 

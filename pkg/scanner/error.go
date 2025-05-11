@@ -3,18 +3,7 @@ package scanner
 import (
 	"errors"
 	"fmt"
-	"os"
 )
-
-type ErrorReporter interface {
-	Report(int, int, string, string)
-}
-
-type StderrErrorReporter struct{}
-
-func (e *StderrErrorReporter) Report(line, column int, where, message string) {
-	fmt.Fprintf(os.Stderr, "[line=%d col=%d] Error: %s. Snippet: '%s'", line, column, message, where)
-}
 
 var (
 	ErrScanner = errors.New("scan error")

@@ -315,6 +315,10 @@ func (s *Scanner) Tokens() []*ast.Token {
 	return s.tokens
 }
 
+func (s *Scanner) HadError() bool {
+	return len(s.ScannerErrors()) > 0
+}
+
 func (s *Scanner) ScannerErrors() map[int][]*GenericScanError {
 	return s.scannerErrors
 }

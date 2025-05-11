@@ -2,6 +2,7 @@ package ast
 
 type Visitor interface {
 	VisitBinaryExpr(expr *BinaryExpr) any
+	VisitUnaryExpr(expr *UnaryExpr) any
 	VisitLiteralExpr(expr *LiteralExpr) any
 	VisitGroupingExpr(expr *GroupingExpr) any
 }
@@ -42,6 +43,32 @@ func NewBinaryExpr(left Expr, operator *Token, right Expr) *BinaryExpr {
 	}
 }
 
+// UnaryExpr
+
+type UnaryExpr struct {
+	operator *Token
+	right    Expr
+}
+
+func (e *UnaryExpr) Accept(visitor Visitor) any {
+	return visitor.VisitUnaryExpr(e)
+}
+
+func (e *UnaryExpr) Operator() *Token {
+	return e.operator
+}
+
+func (e *UnaryExpr) Right() Expr {
+	return e.right
+}
+
+func NewUnaryExpr(operator *Token, right Expr) *UnaryExpr {
+	return &UnaryExpr{
+		operator: operator,
+		right:    right,
+	}
+}
+
 // LiteralExpr
 
 type LiteralExpr struct {
@@ -65,6 +92,10 @@ func NewLiteralExpr(value any) *LiteralExpr {
 // GroupingExpr
 type GroupingExpr struct {
 	expr Expr
+}
+
+func (e *GroupingExpr) Expr() Expr {
+	return e.expr
 }
 
 func (e *GroupingExpr) Accept(visitor Visitor) any {

@@ -1,5 +1,9 @@
 package ast
 
+import (
+	"github.com/bagaswh/rottenlang/pkg/types"
+)
+
 type TokenType byte
 
 const (
@@ -84,15 +88,15 @@ var keywords = map[string]TokenType{
 
 type Token struct {
 	Type         TokenType
-	Str          *string
+	Lexeme       *string
 	Literal      any
 	Line, Column int
 }
 
-func NewToken(tokenType TokenType, str *string, literal any, line, column int) *Token {
+func NewToken(tokenType TokenType, lexeme *string, literal any, line, column int) *Token {
 	return &Token{
 		Type:    tokenType,
-		Str:     str,
+		Lexeme:  lexeme,
 		Literal: literal,
 		Line:    line,
 		Column:  column,
@@ -185,3 +189,5 @@ func (t *Token) Name() string {
 		return "UNKNOWN"
 	}
 }
+
+var EOF = NewToken(TokenEOF, types.StrPtr(""), nil, 0, 0)
